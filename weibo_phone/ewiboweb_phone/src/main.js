@@ -3,13 +3,18 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import { Button, Swipe, SwipeItem, Lazyload } from 'vant'
+import { Button, Swipe, SwipeItem, Lazyload, Image as VanImage, Icon, Tabbar, TabbarItem, Field } from 'vant'
 import 'amfe-flexible/index.js'
 import './assets/resect.css'
 Vue.config.productionTip = false
 Vue.use(Button)
 Vue.use(Swipe)
 Vue.use(SwipeItem)
+Vue.use(VanImage)
+Vue.use(Icon)
+Vue.use(Tabbar)
+Vue.use(TabbarItem)
+Vue.use(Field)
 Vue.use(Lazyload, {
   lazyComponent: true
 })

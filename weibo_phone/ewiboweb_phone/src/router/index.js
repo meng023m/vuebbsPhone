@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
-import content from '@/components/content'
+import index from '@/components/index'
+import addContent from '@/components/addContent'
 
 Vue.use(Router)
 
@@ -13,13 +13,16 @@ export default new Router({
     },
     {
       path: '/index',
-      name: 'HelloWorld',
-      component: HelloWorld
+      name: 'index',
+      component: index,
+      meta: {
+        keepAlive: true
+      }
     },
     {
-      path: '/content',
-      name: 'content',
-      component: content
+      path: '/addContent',
+      name: 'addContent',
+      component: addContent
     }
   ]
 })
