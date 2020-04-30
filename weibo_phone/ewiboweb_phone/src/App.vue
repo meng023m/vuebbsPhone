@@ -8,9 +8,22 @@
 </template>
 
 <script>
+import { getUserInfo } from './axios/api'
+import { mapState, mapActions } from 'vuex'
 export default {
   name: 'App',
+  computed: {
+    ...mapState(['userInfo'])
+  },
+  mounted () {
+    getUserInfo({username: 'zhanghao'}).then(res => {
+      console.log(res)
+      sessionStorage.setItem('userInfo', JSON.stringify(res))
+      this.GET_USERINFO(res.user)
+    })
+  },
   methods: {
+    ...mapActions(['GET_USERINFO']),
     bottm (event) {
       console.log(event)
     }

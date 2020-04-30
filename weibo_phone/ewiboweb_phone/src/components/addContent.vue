@@ -5,24 +5,122 @@
       <div style="float:right; color: #D7D8DA; margin-right: 38px; font-size: 18px;" @click="back">取消</div>
     </div>
     <div>
-      <van-field class="addinput" v-model="message"  rows="12" type="textarea" maxlength="500" placeholder="请输入留言" show-word-limit/>
+      <van-field class="addinput" v-model="message" @input='inputChange($event)'  rows="12" type="textarea" maxlength="500" placeholder="请输入帖子内容" show-word-limit/>
     </div>
-    {{message}}
+    <div class="addbtnShow">
+      <van-button round plain icon="photograph" class="addbtn" size='small' type="info" @click="imgchangeShow"  badge="9">照片</van-button>
+      <van-button round plain icon="live" class="addbtn" size='small' type="info" @click="shipinchangeShow" >视频</van-button>
+      <van-button round plain icon="comment" class="addbtn" size='small' type="info" @click="huatiShow = true" >话题</van-button>
+    </div>
+    <div v-if="imgShow">
+      <van-uploader v-model="imgList" multiple  :max-count="9" />
+    </div>
+    <div v-if="shipinShow">
+      <van-uploader v-model="videoList"  :after-read="afterRead" :max-count="1" accept="video/*" />
+    </div>
+    <van-popup v-model="huatiShow" position="bottom" :style="{ height: '30%' }">
+      <van-picker :columns="TopicListArr" @change="onChange" />
+    </van-popup>
+    <van-popup v-model="aiteShow" position="right" :style="{ width: '100%', height: '100%' }">
+      <van-index-bar :sticky="false">
+       <van-index-anchor v-for="(userItem, userIndex) in userListArr" :key="userIndex" :index="userIndex">
+          <van-cell @click="chooseName(citem)" v-for="(citem, cindex) in userItem" :key="cindex" :title="citem"/>
+      </van-index-anchor>
+      </van-index-bar>
+    </van-popup>
   </div>
 </template>
 
 <script>
+import * as utile from '../axios/api'
 export default {
   name: 'addContent',
   data () {
     return {
-      message: ''
+      message: '',
+      imgList: [],
+      imgShow: false,
+      shipinShow: false,
+      videoList: [],
+      huatiShow: false,
+      AllTopicList: {},
+      TopicListArr: [],
+      Topic: '',
+      aiteShow: false,
+      userList: {},
+      userListArr: {},
+      FirstPin: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'W', 'X', 'Y', 'Z']
     }
   },
   mounted () {
-    // console.log(this.$route)
+    let pinyin = require('js-pinyin')
+    pinyin.setOptions({checkPolyphone: false, charCase: 0})
+    utile.getAllTopicList({
+      userId: 9608,
+      pageNo: 1,
+      pageSize: 10
+    }).then(res => {
+      this.AllTopicList = res.listAll
+      res.listAll.forEach(element => {
+        this.TopicListArr.push(element.topics)
+      })
+    })
+    utile.getUserList({content: ''}).then(res => {
+      console.log(res)
+      this.userList = res.list
+      let arr = []
+      res.list.forEach(ele => {
+        arr.push(ele.nickname)
+      })
+      let firstName = {}
+      this.FirstPin.forEach((item) => {
+        firstName[item] = []
+        arr.forEach((el) => {
+          let first = pinyin.getFullChars(el).substring(0, 1)
+          if (first === item) {
+            firstName[item].push(el)
+          }
+        })
+      })
+      this.userListArr = JSON.parse(JSON.stringify(firstName))
+      console.log(this.userListArr)
+    })
   },
   methods: {
+    chooseName (nickname) {
+      console.log(nickname)
+      this.aiteShow = false
+    },
+    inputChange (value) {
+      value.charAt(value.length - 1)
+      if (value.charAt(value.length - 1) === '@') {
+        this.aiteShow = true
+      }
+      console.log()
+    },
+    onChange (picker, value, index) {
+      if (this.Topic) {
+        this.message = this.message.replace(/(?<=#).*?(?=#)/g, '').replace(/#/g, '')
+      }
+      this.message = value + ' ' + this.message
+      this.Topic = this.AllTopicList[index].id
+      this.huatiShow = false
+    },
+    imgchangeShow () {
+      this.imgShow = !this.imgShow
+    },
+    shipinchangeShow () {
+      this.shipinShow = !this.shipinShow
+    },
+    afterRead (file) {
+      // 此时可以自行将文件上传至服务器
+      console.log(file)
+      if (file.file.type.indexOf('video') === -1) {
+        this.$toast('请上传视频文件')
+        this.videoList = []
+        return false
+      }
+    },
     back () {
       this.$router.go(-1)
     },
@@ -41,7 +139,17 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang="less" scoped>
+.addbtnShow {
+  font-size: 13px;
+  margin: 20px 0;
+  .addbtn {
+    border-color: #E6E8EA;
+    color: #0D0E10;
+    width: 80px;
+    height: 36px;
+  }
+}
 .addinput {
   background: #F6F6F6;
 border-radius: 8px;
