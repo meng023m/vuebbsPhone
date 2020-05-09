@@ -5,7 +5,8 @@
       <div style="float:right; color: #D7D8DA; margin-right: 38px; font-size: 18px;" @click="back">取消</div>
     </div>
     <div>
-      <van-field class="addinput" v-model="message" @input='inputChange($event)'  rows="12" type="textarea" maxlength="500" placeholder="请输入帖子内容" show-word-limit/>
+      <div ref='inputDiv' @input='inputChange($event)' class="addinput" contenteditable="true" data-type="input" placeholder="Hi,随便聊聊啊." ></div>
+      <!-- <van-field class="addinput" v-model="message" @input='inputChange($event)'  rows="12" type="textarea" maxlength="500" placeholder="请输入帖子内容" show-word-limit/> -->
     </div>
     <div class="addbtnShow">
       <van-button round plain icon="photograph" class="addbtn" size='small' type="info" @click="imgchangeShow"  badge="9">照片</van-button>
@@ -23,9 +24,10 @@
     </van-popup>
     <van-popup v-model="aiteShow" position="right" :style="{ width: '100%', height: '100%' }">
       <van-index-bar :sticky="false">
-       <van-index-anchor v-for="(userItem, userIndex) in userListArr" :key="userIndex" :index="userIndex">
-          <van-cell @click="chooseName(citem)" v-for="(citem, cindex) in userItem" :key="cindex" :title="citem"/>
-      </van-index-anchor>
+          <van-index-anchor v-for="(userItem, userIndex) in userListArr" :key="userIndex" :index="userIndex">
+            <span>{{userIndex}}</span>
+            <van-cell @click="chooseName(citem)" v-for="(citem, cindex) in userItem" :key="cindex" :title="citem.nickname"/>
+          </van-index-anchor>
       </van-index-bar>
     </van-popup>
   </div>
@@ -66,37 +68,46 @@ export default {
       })
     })
     utile.getUserList({content: ''}).then(res => {
-      console.log(res)
       this.userList = res.list
-      let arr = []
-      res.list.forEach(ele => {
-        arr.push(ele.nickname)
-      })
-      let firstName = {}
+      var firstName = {}
       this.FirstPin.forEach((item) => {
         firstName[item] = []
-        arr.forEach((el) => {
-          let first = pinyin.getFullChars(el).substring(0, 1)
-          if (first === item) {
+        res.list.forEach((el) => {
+          let nickname = el.nickname
+          let first = pinyin.getFullChars(nickname).substring(0, 1)
+          if (first.toUpperCase() === item) {
             firstName[item].push(el)
           }
         })
       })
       this.userListArr = JSON.parse(JSON.stringify(firstName))
-      console.log(this.userListArr)
     })
   },
   methods: {
-    chooseName (nickname) {
-      console.log(nickname)
+    chooseName (userItem) {
+      console.log(this.$refs.inputDiv)
+      this.$refs.inputDiv.innerHTML +=  `<span id="${userItem.id}" style="color: blue" contenteditable="false">@${userItem.nickname}</span>&nbsp;`
+      // this.message += userItem.nickname + ' '
       this.aiteShow = false
     },
+    // inputChange (value) {
+    //   value.charAt(value.length - 1)
+    //   if (value.charAt(value.length - 1) === '@') {
+    //     this.aiteShow = true
+    //   }
+    //   console.log()
+    // },
     inputChange (value) {
-      value.charAt(value.length - 1)
-      if (value.charAt(value.length - 1) === '@') {
+      if (value.data === '@') {
         this.aiteShow = true
+        let string = this.$refs.inputDiv.innerHTML
+        this.$refs.inputDiv.innerHTML = string.substr(0, string.length - 1)
       }
-      console.log()
+      // value.charAt(value.length - 1)
+      // if (value.charAt(value.length - 1) === '@') {
+      //   this.aiteShow = true
+      // }
+      console.log(value)
     },
     onChange (picker, value, index) {
       if (this.Topic) {
@@ -150,10 +161,18 @@ export default {
     height: 36px;
   }
 }
+*[contenteditable="true"]:empty:before{
+    content:attr(placeholder);
+    color: #A9A9A9;
+  }
 .addinput {
   background: #F6F6F6;
-border-radius: 8px;
-width: 344px;
-height: 338px;
+  border-radius: 8px;
+  padding: 16px 10px;
+  font-size: 17px;
+  width: 324px;
+  height: 306px;
+  overflow-y: auto;
+  border: none;
 }
 </style>

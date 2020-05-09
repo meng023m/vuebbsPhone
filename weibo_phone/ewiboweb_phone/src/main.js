@@ -6,7 +6,7 @@ import store from './vuex'
 import router from './router'
 // import Vant from 'vant'
 // import 'vant/lib/index.css'
-import { Button, Swipe, SwipeItem, Lazyload, Image as VanImage, Icon, Tabbar, TabbarItem, Field, Uploader, PullRefresh, Toast, Popup, Picker, IndexBar, IndexAnchor } from 'vant'
+import { Button, Swipe, SwipeItem, Lazyload, Image as VanImage, Icon, Tabbar, TabbarItem, Cell, Field, Uploader, PullRefresh, Toast, Popup, Picker, IndexBar, IndexAnchor } from 'vant'
 import 'amfe-flexible/index.js'
 import pinyin from 'js-pinyin'
 import './assets/resect.css'
@@ -14,14 +14,8 @@ Vue.config.productionTip = false
 Vue.use(pinyin)
 // Vue.use(Vant)
 
-Vue.use(Button)
-Vue.use(Swipe)
-Vue.use(SwipeItem)
-Vue.use(VanImage)
-Vue.use(Icon)
-Vue.use(Tabbar)
-Vue.use(TabbarItem)
-Vue.use(Uploader).use(Field).use(PullRefresh)
+Vue.use(Button).use(Swipe).use(Cell)
+Vue.use(SwipeItem).use(VanImage).use(Icon).use(Tabbar).use(TabbarItem).use(Uploader).use(Field).use(PullRefresh)
 Vue.use(Toast).use(Popup).use(Picker).use(IndexBar).use(IndexAnchor)
 Vue.use(Lazyload, {
   lazyComponent: true

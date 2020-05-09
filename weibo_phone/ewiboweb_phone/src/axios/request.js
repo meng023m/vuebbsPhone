@@ -31,7 +31,7 @@ axios.interceptors.request.use(
     if (sessionStorage.getItem('token')) {
       config.headers['Authorization'] = sessionStorage.getItem('token')
     }
-    config.headers['Authorization'] = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE1ODgyNDg5OTYsInVzZXJuYW1lIjoiemhhbmdoYW8ifQ.iDY-kgBOOl5FNM-70WpMqNbZAy0qSEA-u2dOPDbpmWr4o_UlUPXfLVL8t4VBJL29KEKSNSyCHURKv8U1PdRNBQ'
+    config.headers['Authorization'] = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE1ODkwMjk4OTUsInVzZXJuYW1lIjoiemhhbmdoYW8ifQ.MUYUcG6Su3vJkqkgc6AEc3PvyNN-6-cCETDNaRyqblQsSgN7hMOSIqsHtXlzJFup5A8ocqm6i43rDFfbFKZP1g'
     return config
   },
   error => {
