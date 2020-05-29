@@ -88,9 +88,7 @@
 	 -webkit-text-size-adjust: none;
 	 -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
  } */
- div {
-	text-align: left;
-}
+
  body {
 	min-width: 1100px;
 	margin: 0 auto !important;
@@ -137,4 +135,10 @@
   ::-webkit-scrollbar {
 	width: 0;
 	background: transparent;
+  }
+  .left {
+	  float: left;
+  }
+  .right{
+	  float: right;
   }

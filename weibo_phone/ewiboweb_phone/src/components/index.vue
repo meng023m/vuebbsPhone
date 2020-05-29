@@ -1,7 +1,8 @@
 <template>
   <div>
     <div class="index_top">我们
-      <div style="float:right; color: #D7D8DA;font-size: 28px;"><van-icon name="search" /></div>
+      <div style="float:right; color: #D7D8DA;font-size: 28px;" @click="$router.push({path: '/topicList'})"><img class="iconSize" src="../assets/icon/top_topic.png"/></div>
+      <div style="float:right; color: #D7D8DA;font-size: 28px; margin-right: 30px"><img class="iconSize" src="../assets/icon/top_search.png"/></div>
     </div>
     <van-swipe class="my-swipe" :autoplay="7000" >
       <van-swipe-item>
@@ -15,22 +16,23 @@
         </van-image>
       </van-swipe-item>
     </van-swipe>
-    <div class="index_list">
+    <div class="index_list" v-for="(item, index) in articleList" :key='index'>
       <div class="index_list_bg">
         <div class="index_list_top">
           <div class="index_list_top_headphoto">
             <van-image round  fit="cover" width="40" height="40" src="https://img.yzcdn.cn/vant/cat.jpeg"></van-image>
           </div>
           <div class="index_list_top_name">
-            <div>美腻的夏天时尚</div>
-            <div class="timestyle" >2019年11月21日  14:00</div>
+            <div>{{item.nickname}}</div>
+            <div class="timestyle" >{{item.createdTime}}</div>
           </div>
-          <div class="index_list_top_btn">
-            <van-button plain round  icon="plus" class="attention" size="small" type="primary">关注</van-button>
+          <div class="index_list_top_btn" v-if='item.userId !== userInfo.id'>
+            <van-button v-if='!item.atttentionFlag' plain round  icon="plus" class="attention" size="small" type="default">关注</van-button>
+            <van-button v-else plain round class="attentioned" size="small" type="default">已关注</van-button>
           </div>
         </div>
-        <div class="index_list_middle">
-          人发动机更好看风格化的看过来快点发货啦说丁哈萨克隔离霜的口感和拉萨个蛋糕～
+        <div class="index_list_middle" @click="$router.push({path: '/postDetails', query : { item: JSON.stringify(item)}})">
+          <pre v-html='item.content'></pre>
           <div class="index_list_middle_img">
             <van-image radius='8px'  width="100" height="100" fit="cover" lazy-load src="https://img.yzcdn.cn/vant/cat.jpeg">
              <template v-slot:error></template>
@@ -48,13 +50,16 @@
         </div>
         <div class="index_list_bottom">
           <div class="index_list_bottom_item">
-            <van-icon name="comment" color=''/> 374
+            <img src="../assets/icon/pinglun_off.png" /> {{item.commentCount}}
           </div>
           <div class="index_list_bottom_item">
-            <van-icon name="like" color=''/> 374
+            <img v-if='item.collectFlag' src="../assets/icon/shoucang_on.png" />
+            <img v-else src="../assets/icon/shoucang_off.png" />374
           </div>
           <div class="index_list_bottom_item">
-            <van-icon name="good-job" color=''/> 374
+            <img v-if='item.likeFlag' src="../assets/icon/dianzan_on.png" />
+            <img v-else src="../assets/icon/dianzan_off.png" />
+             {{item.praiseCount}}
           </div>
         </div>
       </div>
@@ -65,6 +70,8 @@
 
 <script>
 import tabbar from './tabbar'
+import * as utile from '../axios/api'
+import {mapState, mapActions} from 'vuex'
 export default {
   name: 'index',
   components: {
@@ -72,7 +79,45 @@ export default {
   },
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      articleList: []
+    }
+  },
+  computed: {
+    ...mapState(['userInfo'])
+  },
+  mounted () {
+    if ('id' in this.userInfo) {
+      this.getArticleList()
+    } else if (sessionStorage.getItem('userInfo')) {
+      this.GET_USERINFO(JSON.parse(sessionStorage.getItem('userInfo')))
+      this.getArticleList()
+    } else {
+      utile.getUserInfo({username: 'zhanghao'}).then(res => {
+        sessionStorage.setItem('userInfo', JSON.stringify(res))
+        this.GET_USERINFO(res.user)
+        this.getArticleList()
+      })
+    }
+  },
+  methods: {
+    ...mapActions(['GET_USERINFO']),
+    getArticleList () {
+      let param = {
+        userId: this.userInfo.id,
+        pageNo: 1,
+        pageSize: 10,
+        department: this.userInfo.department,
+        topicId: '',
+        creatorUserId: '',
+        content: '',
+        noticeId: '',
+        likeUserId: '',
+        topicType: ''
+      }
+      utile.getArticleList(param).then(res => {
+        console.log(res)
+        this.articleList = res.list
+      })
     }
   },
   watch: {
@@ -83,10 +128,6 @@ export default {
 }
 </script>
 <style lang="less">
-.timestyle {
-  font-size: 13px;
-  color: #D7D8DA ;
-}
 .attention{
   width: 72px;
   height: 25px;
@@ -95,51 +136,24 @@ export default {
   color: #0D0E10;
   border: 1px solid #E6E8EA;
 }
-.index_list_bg{
-  background: #FFFFFF;
-  box-shadow: 0 8px 20px 0 rgba(23,25,29,0.05);
-  border-radius: 8px;
-  padding: 16px;
-  font-size: 15px;
-  color: #0D0E10;
-  .index_list_top {
-    display: flex;
-    height: 40px;
-    .index_list_top_headphoto {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-    }
-    .index_list_top_name {
-      flex: 1;
-      margin-left: 8px;
-      line-height: 24px;
-    }
-    .index_list_top_btn{
-      width: 72px;
-      line-height: 40px;
-    }
-  }
-  .index_list_middle {
-    padding-top: 17px;
-    .index_list_middle_img {
-      margin-top:11px;
-    }
-  }
-  .index_list_bottom {
-    margin-top: 20px;
-    font-size: 13px;
-    color: #D7D8DA;
-    height: 14px;
-    line-height: 14px;
-    .index_list_bottom_item {
-      float: left;
-      margin-right: 18px;
-    }
-  }
+.attentioned{
+  width: 72px;
+  height: 25px;
+  line-height: 25px;
+  background: #EFF0F1;
+  color: #959595;
+}
+.iconSize {
+  width: 18px;
+  height: 18px;
+}
+.timestyle {
+  font-size: 13px;
+  color: #D7D8DA ;
 }
 .my-swipe {
   height: 140px;
+  margin: 0 15px;
   border-radius: 10px;
   .van-swipe__indicators {
     bottom: 0.2rem;
